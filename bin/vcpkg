@@ -1,0 +1,15 @@
+#!/bin/bash 
+
+default_vcmake_vcpkg_executable=@DEFAULT_VCMAKE_VCPKG_EXECUTABLE@
+
+# if environment variable VCMAKE_VCPKG_EXECUTABLE is defined
+# then this executable file will be used
+if [ ! -z "${VCMAKE_VCPKG_EXECUTABLE+defined}" ] ; then
+    is_VCMAKE_VCPKG_EXECUTABLE_defined=true
+    vcmake_vcpkg_executable="${VCMAKE_VCPKG_EXECUTABLE}"
+else
+    is_VCMAKE_VCPKG_EXECUTABLE_defined=false
+    vcmake_vcpkg_executable="${default_vcmake_vcpkg_executable}"
+fi
+
+"${vcmake_vcpkg_executable}" "${@}"

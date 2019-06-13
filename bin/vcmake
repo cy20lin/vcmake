@@ -1,0 +1,71 @@
+#!/bin/bash
+
+# Following two variables are automatic setted during the installation process.
+# Modifiy these two variables only if you know what you are doing.
+#   default_vcmake_vcpkg_cmake_toolchain_file might be something like:
+#   ${HOME}/vcpkg/vcpkg
+default_vcmake_vcpkg_executable=@DEFAULT_VCMAKE_VCPKG_EXECUTABLE@
+#   default_vcmake_vcpkg_cmake_toolchain_file might be something like:
+#   ${HOME}/vcpkg/scripts/buildsystems/vcpkg.cmake
+default_vcmake_vcpkg_cmake_toolchain_file=@DEFAULT_VCMAKE_VCPKG_CMAKE_TOOLCHAIN_FILE@
+
+# If environment variable VCMAKE_VCPKG_EXECUTABLE is defined
+# then this executable file will be used
+if [ ! -z "${VCMAKE_VCPKG_EXECUTABLE+defined}" ] ; then
+    is_VCMAKE_VCPKG_EXECUTABLE_defined=true
+    vcmake_vcpkg_executable="${VCMAKE_VCPKG_EXECUTABLE}"
+else
+    is_VCMAKE_VCPKG_EXECUTABLE_defined=false
+    vcmake_vcpkg_executable="${default_vcmake_vcpkg_executable}"
+fi
+
+# If environment variable VCMAKE_VCPKG_EXECUTABLE is defined
+# then this executable file will be used
+if [ ! -z "${VCMAKE_VCPKG_EXECUTABLE+defined}" ] ; then
+    is_VCMAKE_VCPKG_CMAKE_TOOLCHAIN_FILE_defined=true
+    vcmake_vcpkg_cmake_toolchain_file="${VCMAKE_VCPKG_EXECUTABLE}"
+else
+    is_VCMAKE_VCPKG_CMAKE_TOOLCHAIN_FILE_defined=false
+    vcmake_vcpkg_cmake_toolchain_file="${default_vcmake_vcpkg_executable}"
+fi
+
+origin_args=("${@}")
+processed_args=()
+is_vcpkg_chainload_toolchain_file_set=false
+is_cmake_toolchain_file_set=false
+last_cmake_toolchain_file=
+last_vcpkg_chainload_toolchain_file=
+
+for ((i=0; i<"${#origin_args[@]}"; ++i)); do
+    value=`printf -- "%s" "${origin_args[${i}]}" | sed -- 's/^-DCMAKE_TOOLCHAIN_FILE\(:[^=]*\)\?=\(.*\)$/\2/g ; T e; :e ; s/.*//g ; Q 1'`
+    code=$?
+    if [ "${code}" = 0 ] ; then
+        last_cmake_toolchain_file="${value}"
+        is_cmake_toolchain_file_set=true
+    fi
+    value=`printf -- "%s" "${origin_args[${i}]}" | sed -- 's/^-DVCPKG_CHAINLOAD_TOOLCHAIN_FILE\(:[^=]*\)\?=\(.*\)$/\2/g ; T e; :e ; s/.*//g ; Q 1'`
+    code="${?}"
+    if [ "${code}" = 0 ] ; then
+        last_vcpkg_chainload_toolchain_file="${value}"
+        is_vcpkg_chainload_toolchain_file_set=true
+    fi
+done
+
+# What following code does, is to remap user defined CMAKE_TOOLCHAIN_FILE
+# to VCPKG_CHAINLOAD_TOOLCHAIN_FILE, since variable CMAKE_TOOLCHAIN_FILE
+# would be taken by vcpkg while using vcpkg package toolchain. 
+# Remap to include the cmake toolchain file from users.
+# If VCPKG_CHAINLOAD_TOOLCHAIN_FILE is already defined,
+# which means the user is already aware of vcpkg toolchain inclusion convention,
+# so there is no need to do the remap.
+#
+# NOTE: For variables defined in arguments for cmake executable,
+# the last definition always has highest percedence.
+if test "${is_vcpkg_chainload_toolchain_file_set}" = false -a "${is_cmake_toolchain_file_set}" = true ; then
+    processed_args+=("-DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=${last_cmake_toolchain_file}")
+fi
+# Add definition of vcpkg toolchain file in the end of arguments,
+# override all the others definitions
+processed_args+=("-DCMAKE_TOOLCHAIN_FILE=${vcpkg_cmake_toolchain_file}")
+
+cmake "${processed_args[@]}"
