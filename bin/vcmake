@@ -19,18 +19,18 @@ else
     vcmake_vcpkg_executable="${default_vcmake_vcpkg_executable}"
 fi
 
-# If environment variable VCMAKE_VCPKG_EXECUTABLE is defined
-# then this executable file will be used
-if [ ! -z "${VCMAKE_VCPKG_EXECUTABLE+defined}" ] ; then
+# If environment variable VCMAKE_VCPKG_CMAKE_TOOLCHAIN_FILE is defined
+# then this cmake_toolchain_file file will be used
+if [ ! -z "${VCMAKE_VCPKG_CMAKE_TOOLCHAIN_FILE+defined}" ] ; then
     is_VCMAKE_VCPKG_CMAKE_TOOLCHAIN_FILE_defined=true
-    vcmake_vcpkg_cmake_toolchain_file="${VCMAKE_VCPKG_EXECUTABLE}"
+    vcmake_vcpkg_cmake_toolchain_file="${VCMAKE_VCPKG_CMAKE_TOOLCHAIN_FILE}"
 else
     is_VCMAKE_VCPKG_CMAKE_TOOLCHAIN_FILE_defined=false
-    vcmake_vcpkg_cmake_toolchain_file="${default_vcmake_vcpkg_executable}"
+    vcmake_vcpkg_cmake_toolchain_file="${default_vcmake_vcpkg_cmake_toolchain_file}"
 fi
 
 origin_args=("${@}")
-processed_args=()
+processed_args=("${@}")
 is_vcpkg_chainload_toolchain_file_set=false
 is_cmake_toolchain_file_set=false
 last_cmake_toolchain_file=
@@ -66,6 +66,6 @@ if test "${is_vcpkg_chainload_toolchain_file_set}" = false -a "${is_cmake_toolch
 fi
 # Add definition of vcpkg toolchain file in the end of arguments,
 # override all the others definitions
-processed_args+=("-DCMAKE_TOOLCHAIN_FILE=${vcpkg_cmake_toolchain_file}")
+processed_args+=("-DCMAKE_TOOLCHAIN_FILE=${vcmake_vcpkg_cmake_toolchain_file}")
 
 cmake "${processed_args[@]}"

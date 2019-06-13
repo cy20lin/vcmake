@@ -24,6 +24,7 @@ vcpkg_root_dir="${2}"
 vcpkg_cmake_toolchain_file="${3-scripts/buildsystems/vcpkg.cmake}"
 vcpkg_executable="${4-vcpkg}"
 
+
 # Join paths: vcpkg_root_dir + file
 vcpkg_cmake_toolchain_file="${vcpkg_root_dir%%+(/)}${vcpkg_root_dir:+/}${vcpkg_cmake_toolchain_file}"
 vcpkg_executable="${vcpkg_root_dir%%+(/)}${vcpkg_root_dir:+/}${vcpkg_executable}"
