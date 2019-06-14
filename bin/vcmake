@@ -8,6 +8,9 @@ default_vcmake_vcpkg_executable=@DEFAULT_VCMAKE_VCPKG_EXECUTABLE@
 #   default_vcmake_vcpkg_cmake_toolchain_file might be something like:
 #   ${HOME}/vcpkg/scripts/buildsystems/vcpkg.cmake
 default_vcmake_vcpkg_cmake_toolchain_file=@DEFAULT_VCMAKE_VCPKG_CMAKE_TOOLCHAIN_FILE@
+#   default_vcmake_cmake_executable might be something like:
+#   cmake
+default_vcmake_cmake_executable=@DEFAULT_VCMAKE_CMAKE_EXECUTABLE@
 
 # If environment variable VCMAKE_VCPKG_EXECUTABLE is defined
 # then this executable file will be used
@@ -27,6 +30,16 @@ if [ ! -z "${VCMAKE_VCPKG_CMAKE_TOOLCHAIN_FILE+defined}" ] ; then
 else
     is_VCMAKE_VCPKG_CMAKE_TOOLCHAIN_FILE_defined=false
     vcmake_vcpkg_cmake_toolchain_file="${default_vcmake_vcpkg_cmake_toolchain_file}"
+fi
+
+# If environment variable VCMAKE_CMAKE_EXECUTABLE is defined
+# then this cmake_ file will be used
+if [ ! -z "${VCMAKE_CMAKE_EXECUTABLE+defined}" ] ; then
+    is_VCMAKE_CMAKE_EXECUTABLE_defined=true
+    vcmake_cmake_executable="${VCMAKE_CMAKE_EXECUTABLE}"
+else
+    is_VCMAKE_CMAKE_EXECUTABLE_defined=false
+    vcmake_cmake_executable="${default_vcmake_cmake_executable}"
 fi
 
 origin_args=("${@}")
@@ -68,4 +81,4 @@ fi
 # override all the others definitions
 processed_args+=("-DCMAKE_TOOLCHAIN_FILE=${vcmake_vcpkg_cmake_toolchain_file}")
 
-cmake "${processed_args[@]}"
+"${vcmake_cmake_executable}" "${processed_args[@]}"

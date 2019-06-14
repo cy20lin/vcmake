@@ -52,7 +52,7 @@ if ! cp -a ./bin/. "${install_prefix}/bin" ; then
 fi
 
 function install_script() {
-    sed -i "s/@DEFAULT_VCMAKE_VCPKG_EXECUTABLE@/${vcpkg_executable_escaped}/g ; s/@DEFAULT_VCMAKE_VCPKG_CMAKE_TOOLCHAIN_FILE@/${vcpkg_cmake_toolchain_file_escaped}/g" "${@}"
+    sed -i "s/@DEFAULT_VCMAKE_VCPKG_EXECUTABLE@/${vcpkg_executable_escaped}/g ; s/@DEFAULT_VCMAKE_VCPKG_CMAKE_TOOLCHAIN_FILE@/${vcpkg_cmake_toolchain_file_escaped}/g ; s/@DEFAULT_VCMAKE_CMAKE_EXECUTABLE@/cmake/g" "${@}"
 }
 
 if ! install_script "${install_prefix}/bin/vcmake" ; then
